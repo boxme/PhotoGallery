@@ -22,6 +22,7 @@ public class FlickrFetchr {
 	private static final String PARAM_EXTRAS = "extras";								//Extra parameters
 	private static final String EXTRA_SMALL_URL = "url_s";								//Include URL for the small version of the picture if possible
 	private static final String API_KEY = "867afc6088c34a1cae2e31e3eb41cdb6";
+	private static final String PAGE = "page";
 	
 	private static final String XML_PHOTO = "photo";									//Name of photo XML element
 	
@@ -61,7 +62,7 @@ public class FlickrFetchr {
 	/*
 	 * Fetch most recently uploaded Flickr photo using its API
 	 */
-	public ArrayList<GalleryItem> fetchItems() {
+	public ArrayList<GalleryItem> fetchItems(Integer page) {
 		ArrayList<GalleryItem> items = new ArrayList<GalleryItem>();
 		
 		try {
@@ -69,6 +70,7 @@ public class FlickrFetchr {
 					.appendQueryParameter("method", METHOD_GET_RECENT)			//Auto escape query strings
 					.appendQueryParameter("api_key", API_KEY)
 					.appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
+					.appendQueryParameter(PAGE, page.toString())
 					.build().toString();
 			String xmlString = getUrl(url);
 			Log.i(TAG, "Received xml: " + xmlString);

@@ -73,12 +73,13 @@ public class FlickrFetchr {
 					.appendQueryParameter(PAGE, page.toString())
 					.build().toString();
 			String xmlString = getUrl(url);
-			Log.i(TAG, "Received xml: " + xmlString);
+//			Log.i(TAG, "Received xml: " + xmlString);
 			XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
 			XmlPullParser parser = factory.newPullParser();
 			parser.setInput(new StringReader(xmlString));
 			
 			parseItem(items, parser);
+			Log.i(TAG, "Page number: " + page);
 		} catch (IOException ioe) {
 			Log.e(TAG, "Failed to fetch item: ", ioe);
 		} catch (XmlPullParserException xppe) {

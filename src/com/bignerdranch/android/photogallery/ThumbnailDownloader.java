@@ -1,3 +1,6 @@
+/*
+ * Customised HandlerThread for a background thread
+ */
 package com.bignerdranch.android.photogallery;
 
 import java.io.IOException;
@@ -53,6 +56,7 @@ public class ThumbnailDownloader<Token> extends HandlerThread {			//HandlerThrea
 	
 	//Preload into the cache 
 	public void queuePreload(String url) {
+		if (url == null) return;
 		if (mCache.get(url) != null) return;							//Already exists in cache
 		
 		mHandler.obtainMessage(MESSAGE_PRELOAD, url)
@@ -87,7 +91,6 @@ public class ThumbnailDownloader<Token> extends HandlerThread {			//HandlerThrea
 				} 
 				else if (msg.what == MESSAGE_PRELOAD) {
 					String url = (String) msg.obj;
-					Log.i(TAG, "Preload url");
 					preload(url);
 				}
 			}
@@ -98,9 +101,9 @@ public class ThumbnailDownloader<Token> extends HandlerThread {			//HandlerThrea
 		try {
 			if (url == null) return null;
 			byte[] bitmapBytes = new FlickrFetchr().getUrlBytes(url);		//DL bytes from URL and convert into a bitmap
+			if (bitmapBytes == null) return null;
 			final Bitmap bitmap = BitmapFactory
 							  .decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
-//			Log.i(TAG, "Bitmap created");
 			return bitmap;
 		} catch (IOException ioe) {
 			Log.e(TAG, "Error downloading image", ioe);
@@ -109,8 +112,10 @@ public class ThumbnailDownloader<Token> extends HandlerThread {			//HandlerThrea
 	}
 	
 	private void preload(String url) {
-		if (url == null) 			 return;
-		if (mCache.get(url) != null) return;
+		if (url == null) 	return;
+		if (mCache.get(url) != null) 
+			return;
+
 		Bitmap bitmap = getBitmap(url);
 		
 		if (bitmap != null) 
@@ -121,7 +126,8 @@ public class ThumbnailDownloader<Token> extends HandlerThread {			//HandlerThrea
 		final String url = requestMap.get(token);
 		if (url == null) 
 			return;
-		if (mCache.get(url) == null) 										//If image doesnt exist in cache, DL it
+		
+		if (mCache.get(url) == null) 									//If image doesn't exist in cache, DL it
 			preload(url);
 		
 		final Bitmap bitmap = mCache.get(url);

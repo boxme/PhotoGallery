@@ -5,10 +5,10 @@ package com.bignerdranch.android.photogallery;
 
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -21,7 +21,10 @@ import android.util.Log;
 
 public class PollService extends IntentService {
 	private static final String TAG = "PollService";
-	private static final int POLL_INTERVAL = 1000*15; 						//15 seconds
+	private static final int POLL_INTERVAL = 1000*15; 						//15 sec
+	public static final String PREF_IS_ALARM_ON = "isAlarmOn";
+	public static final String ACTION_SHOW_NOTIFICATION = "com.bignerdranch.android.photogallery.SHOW_NOTIFICATION";
+	public static final String PERM_PRIVATE = "com.bignerdranch.android.photogallery.PRIVATE";
 	
 	public PollService() {
 		super(TAG);
@@ -71,10 +74,12 @@ public class PollService extends IntentService {
 						.setAutoCancel(true)	//Notification will be deleted from the drawer when the user presses it
 						.build();
 			
-			NotificationManager notificationManager = (NotificationManager)
-					getSystemService(NOTIFICATION_SERVICE);
-			
-			notificationManager.notify(0, notification);								//The ID should be unqiue across the app
+//			NotificationManager notificationManager = (NotificationManager)
+//					getSystemService(NOTIFICATION_SERVICE);
+//			
+//			notificationManager.notify(0, notification);								//The ID should be unqiue across the app
+//			sendBroadcast(new Intent(ACTION_SHOW_NOTIFICATION), PERM_PRIVATE);			//Send a broadcast intent set in private
+			showBackgroundNotification(0, notification);
 		} else {
 			Log.i(TAG, "got an old result: " + resultId);
 		}
@@ -102,6 +107,11 @@ public class PollService extends IntentService {
 			alarmManager.cancel(pi);
 			pi.cancel();														//Cancel PendingIntent
 		}
+		
+		PreferenceManager.getDefaultSharedPreferences(context)
+						 .edit()
+						 .putBoolean(PREF_IS_ALARM_ON, isOn)					//Save the state of the alarm
+						 .commit();
 	}
 	
 	/*
@@ -113,5 +123,16 @@ public class PollService extends IntentService {
 		PendingIntent pi = PendingIntent
 					.getService(context, 0, intent, PendingIntent.FLAG_NO_CREATE);	//Check that pendingIntent doesnt already exist
 		return pi != null;
+	}
+	
+	/*
+	 * Send an ordered broadcast
+	 */
+	public void showBackgroundNotification(int requestCode, Notification notification) {
+		Intent intent = new Intent(ACTION_SHOW_NOTIFICATION);
+		intent.putExtra("REQUEST_CODE", requestCode);
+		intent.putExtra("NOTIFICATION", notification);
+		
+		sendOrderedBroadcast(intent, PERM_PRIVATE, null, null, Activity.RESULT_OK, null, null);
 	}
 }

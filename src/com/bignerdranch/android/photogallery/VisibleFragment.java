@@ -16,7 +16,7 @@ public class VisibleFragment extends Fragment {
 	
 	private BroadcastReceiver mOnShowNotification = new BroadcastReceiver() {			//Dynamic receiver
 		@Override
-		public void onReceive(Context context, Intent intent) {
+		public void onReceive(Context context, Intent intent) {							//It's called on the main thread
 			//If we receive this, we're visible, so cancel the notification
 			Log.i(TAG, "canceling notification");
 			setResultCode(Activity.RESULT_CANCELED);
